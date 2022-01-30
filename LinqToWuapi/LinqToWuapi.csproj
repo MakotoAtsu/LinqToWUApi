@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<COMReference Include="WUApiLib">
+			<VersionMinor>0</VersionMinor>
+			<VersionMajor>2</VersionMajor>
+			<Guid>b596cc9f-56e5-419e-a622-e01bb457431e</Guid>
+			<Lcid>0</Lcid>
+			<WrapperTool>tlbimp</WrapperTool>
+			<Isolated>false</Isolated>
+			<EmbedInteropTypes>False</EmbedInteropTypes>
+		</COMReference>
+	</ItemGroup>
+
+</Project>
