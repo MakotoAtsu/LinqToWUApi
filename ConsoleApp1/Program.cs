@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq.Expressions;
 using LinqToWuapi;
+using WUApiLib;
 
 namespace ConsoleApp1
 {
@@ -9,10 +12,24 @@ namespace ConsoleApp1
         {
             var search = new WUApiLib.UpdateSession().CreateUpdateSearcher();
             search.Online = false;
-            //var result = search.Where(x => x.IsInstalled == true);
+
+            //var result = search.Search("IsInstalled = 1 and BrowseOnly = 0").Updates;
+
+            //foreach (IUpdate item in result)
+            //{
+            //    Debug.WriteLine($"{item.Title} : {item.IsMandatory}");
+            //}
+            Expression<Predicate<IUpdate4>> aa = x => x.BrowseOnly == true &&
+                                                     (x.IsInstalled == true || x.IsHidden == false);
+            var res = aa.ReduceExtensions();
+
+            var sss = LinqToWuapi.WuApiExt.ToSearchString(aa.Body);
+
+
+
             try
             {
-                var temp = search.Search("BrowseOnly = 1");
+                var temp = search.Search("(BrowseOnly = 1 OR IsHidden = 1) AND IsInstalled = 1");
             }
             catch (Exception ex)
             {

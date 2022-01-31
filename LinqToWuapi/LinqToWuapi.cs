@@ -34,30 +34,49 @@ namespace LinqToWuapi
 
         };
 
-        public static IUpdate Where(this IUpdateSearcher searcher, Expression<Predicate<IUpdate>> expression)
+        public static IUpdate Where(this IUpdateSearcher searcher, Expression<Predicate<IUpdate4>> expression)
         {
 
 
             throw new NotImplementedException();
         }
 
-        public static string ToSearchString(Expression expression)
+        public static string ToSearchString(Expression expression,
+                                            bool isRoot = false)
         {
 
-            if (expression is BinaryExpression binExp)
+            switch (expression)
             {
-                return ExtractBinaryExpression(binExp);
-            }
-            else
-            {
-                throw new NotImplementedException("Only support BinaryExpression");
+                case BinaryExpression binExp:
+                    return $"{ExtractBinaryExpression(binExp, isRoot)}";
+
+                case MemberExpression memberExp:
+                    return $"{ExtractMemberExpression(memberExp)}";
+
+                case UnaryExpression unaryExp:
+                    return $"{ExtractUnaryExpression(unaryExp)}";
+                default:
+                    throw new NotImplementedException("Only support BinaryExpression");
             }
 
             throw new NotImplementedException();
         }
 
+        private static object ExtractUnaryExpression(UnaryExpression unaryExp)
+        {
+            if (!(unaryExp.Operand is MemberExpression memberExp))
+                throw new ArgumentException("UnaryExpression just can use with 'NOT' and 'MemberExpression'");
 
-        private static string ExtractBinaryExpression(BinaryExpression binExp)
+            var memberName = memberExp.Member.Name;
+            CheckMemberCanBeSearch(memberName);
+
+            CheckMemberAllowType(memberName, ExpressionType.Equal);
+
+            return $"{memberName} = 0";
+        }
+
+        private static string ExtractBinaryExpression(BinaryExpression binExp,
+                                                      bool isRoot)
         {
 
             // if Right is Constant , Left must be Member
@@ -65,15 +84,11 @@ namespace LinqToWuapi
             {
                 if (binExp.Left is MemberExpression memberExp)
                 {
-                    var mamberName = memberExp.Member.Name;
+                    var memberName = memberExp.Member.Name;
 
-                    if (!MemberAllowType.ContainsKey(mamberName))
-                        throw new Exception($"Not support serach attribube {mamberName}");
+                    CheckMemberCanBeSearch(memberName);
 
-                    // Check Member support Expression Type
-                    if (!MemberAllowType[mamberName].Contains(binExp.NodeType))
-                        throw new Exception($"The attribute:{mamberName} " +
-                                            $"only support expression:{string.Join(",", MemberAllowType[mamberName])}");
+                    CheckMemberAllowType(memberName, binExp.NodeType);
 
                     string constantValue;
 
@@ -102,12 +117,42 @@ namespace LinqToWuapi
             }
             else
             {
-                var temp = $"{ToSearchString(binExp.Left)} " +
+                //if (!isRoot &&
+                //    (binExp.NodeType == ExpressionType.Or || binExp.NodeType == ExpressionType.OrElse))
+                //    throw new ArgumentException($"OR can be used only at the top level of the search criteria");
+
+                var temp = $"({ToSearchString(binExp.Left)}) " +
                            $"{ExpressionTypeMapping[binExp.NodeType]} " +
-                           $"{ToSearchString(binExp.Right)}";
+                           $"({ToSearchString(binExp.Right)})";
 
                 return temp;
             }
+        }
+
+
+        private static string ExtractMemberExpression(MemberExpression memberExp)
+        {
+            var memberName = memberExp.Member.Name;
+
+            CheckMemberCanBeSearch(memberName);
+
+            return $"{memberName} = 1";
+        }
+
+
+        private static void CheckMemberCanBeSearch(string memberName)
+        {
+            if (!MemberAllowType.ContainsKey(memberName))
+                throw new ArgumentException($"Not support serach attribube {memberName}");
+
+        }
+
+        private static void CheckMemberAllowType(string memberName, ExpressionType type)
+        {
+            if (!MemberAllowType[memberName].Contains(type))
+                throw new NotSupportedException($"The attribute:{memberName} " +
+                                                $"only support expression:{string.Join(",", MemberAllowType[memberName])}");
+
         }
     }
 
