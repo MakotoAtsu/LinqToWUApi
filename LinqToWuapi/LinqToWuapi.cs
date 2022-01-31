@@ -34,11 +34,11 @@ namespace LinqToWuapi
 
         };
 
-        public static IUpdate Where(this IUpdateSearcher searcher, Expression<Predicate<IUpdate4>> expression)
+        public static ISearchResult Where(this IUpdateSearcher searcher, Expression<Predicate<IUpdate5>> expression)
         {
-
-
-            throw new NotImplementedException();
+            var searchString = ToSearchString(expression.Body);
+            var result = searcher.Search(searchString);
+            return result;
         }
 
         public static string ToSearchString(Expression expression,
