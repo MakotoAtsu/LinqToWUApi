@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using WUApiLib;
 
@@ -17,9 +18,8 @@ namespace LinqToWuapi
             { ExpressionType.NotEqual , "!=" },
         };
 
-
         /// <summary>
-        /// Support search member name
+        /// Windows Update Object support Operator
         /// ref: https://docs.microsoft.com/en-us/windows/win32/api/wuapi/nf-wuapi-iupdatesearcher-search
         /// </summary>
         private static readonly Dictionary<string, HashSet<ExpressionType>> MemberAllowType = new Dictionary<string, HashSet<ExpressionType>>(StringComparer.OrdinalIgnoreCase)
@@ -31,7 +31,7 @@ namespace LinqToWuapi
             {"AutoSelectOnWebSites",new HashSet<ExpressionType>(){ ExpressionType.Equal} },
             {"UpdateID",new HashSet<ExpressionType>(){ ExpressionType.Equal,ExpressionType.NotEqual} },
             {"RevisionNumber",new HashSet<ExpressionType>(){ ExpressionType.Equal} },
-            {"CategoryIDs",new HashSet<ExpressionType>(){ ExpressionType.Constant} }, //Container
+            {"CategoryIDs",new HashSet<ExpressionType>(){ } }, //Container
             {"IsInstalled", new HashSet<ExpressionType>(){ExpressionType.Equal,ExpressionType.NotEqual} },
             {"IsHidden",new HashSet<ExpressionType>(){ ExpressionType.Equal} },
             {"IsPresent",new HashSet<ExpressionType>(){ ExpressionType.Equal} },
@@ -39,7 +39,7 @@ namespace LinqToWuapi
 
         };
 
-        public static ISearchResult Where(this IUpdateSearcher searcher, Expression<Predicate<IUpdate5>> expression)
+        public static ISearchResult Where(this IUpdateSearcher searcher, Expression<Predicate<ISearchObject>> expression)
         {
             var searchString = ToSearchString(expression.Body, true);
             var result = searcher.Search(searchString);
@@ -59,12 +59,26 @@ namespace LinqToWuapi
 
                 case UnaryExpression unaryExp:
                     return $"{ExtractUnaryExpression(unaryExp)}";
+
+                case MethodCallExpression methodCallExp:
+                    return $"{ExtractMethodCallExpression(methodCallExp)}";
                 default:
                     throw new NotImplementedException("Not Support Expression");
             }
         }
 
-        private static object ExtractUnaryExpression(UnaryExpression unaryExp)
+        private static string ExtractMethodCallExpression(MethodCallExpression methodCallExp)
+        {
+            var memberName = methodCallExp.Object.ToString().Split('.').Last();
+            // For now , only support attribute 'CategoryIDs' and Method 'Contains'
+            if (methodCallExp.Method.Name != "Contains" ||
+                memberName != "CategoryIDs")
+                throw new ArgumentException("Only support method 'Contains' on 'CategoryIDs'");
+
+            return $"{memberName} contains '{(methodCallExp.Arguments[0] as ConstantExpression).Value}'";
+        }
+
+        private static string ExtractUnaryExpression(UnaryExpression unaryExp)
         {
             if (!(unaryExp.Operand is MemberExpression memberExp))
                 throw new ArgumentException("UnaryExpression just can use with 'NOT' and 'MemberExpression'");
@@ -145,9 +159,9 @@ namespace LinqToWuapi
                     CheckMemberCanBeSearch(memberName);
                     CheckMemberAllowType(memberName, binExp.NodeType);
 
-                    var type = memberExp.Type;
-                    var value = Enum.Parse(type, $"{(binExp.Right as ConstantExpression).Value}");
-                    return $"{memberName} = '{value.ToString().Substring(2)}'";
+                    var value = Enum.Parse(memberExp.Type,
+                                           $"{(binExp.Right as ConstantExpression).Value}");
+                    return $"{memberName} = '{value}'";
                 }
                 else
                 {

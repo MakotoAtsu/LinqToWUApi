@@ -16,17 +16,17 @@ namespace ConsoleApp1
 
             try
             {
-                var result = search.Where(x => x.IsInstalled);
+                //var result = search.Where(x => x.IsInstalled);
+                //foreach (IUpdate item in result.Updates)
+                //{
+                //    Console.WriteLine($"{item.Categories} :");
+                //    foreach (ICategory cat in item.Categories)
+                //    {
+                //        Console.WriteLine(cat.CategoryID);
+                //    }
+                //}
 
-                foreach (IUpdate item in result.Updates)
-                {
-                    Console.WriteLine($"{item.Categories} :");
-                    foreach (ICategory cat in item.Categories)
-                    {
-                        Console.WriteLine(cat.CategoryID);
-                    }
-                }
-
+                var result2 = search.Where(x => x.CategoryIDs.Contains("e0789628-ce08-4437-be74-2495b842f43b"));
                 var temp = search.Search("CategoryIDs contains 'e0789628-ce08-4437-be74-2495b842f43b'");
             }
             catch (Exception ex)
