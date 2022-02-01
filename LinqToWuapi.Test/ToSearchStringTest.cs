@@ -117,6 +117,41 @@ namespace LinqToWuapi.Test
         }
 
 
+        [Fact]
+        public void Support_Nested_Expression()
+        {
+            Expression<Predicate<IUpdate5>> searchExp = (x) => (x.BrowseOnly == true && x.IsInstalled == true) ||
+                                                               (x.BrowseOnly == false && x.IsInstalled == false);
+
+            Expression<Predicate<IUpdate5>> searchExp2 = (x) => x.BrowseOnly || x.IsHidden || x.IsInstalled;
+
+
+            var searchString = WuApiExt.ToSearchString(searchExp.Body, true);
+            var searchString2 = WuApiExt.ToSearchString(searchExp2.Body, true);
+
+            Assert.Equal("((BrowseOnly = 1) AND (IsInstalled = 1)) OR ((BrowseOnly = 0) AND (IsInstalled = 0))",
+                         searchString);
+
+            Assert.Equal("((BrowseOnly = 1) OR (IsHidden = 1)) OR (IsInstalled = 1)",
+                         searchString2);
+        }
+
+        [Fact]
+        public void NotSupport_Nested_Expression_With_OrType_without_Top_Level()
+        {
+            Expression<Predicate<IUpdate5>> searchExp = (x) => (x.IsInstalled == true || x.IsHidden) &&
+                                                               x.RebootRequired == true;
+
+            Expression<Predicate<IUpdate5>> searchExp2 = (x) => (x.BrowseOnly && x.IsInstalled) &&
+                                                                (x.IsHidden || x.RebootRequired);
+
+            var argEx = Assert.Throws<ArgumentException>(() => WuApiExt.ToSearchString(searchExp.Body, true));
+            var argEx2 = Assert.Throws<ArgumentException>(() => WuApiExt.ToSearchString(searchExp2.Body, true));
+
+            var expectedExMsg = "OR can be used only at the top level of the search criteria";
+            Assert.Equal(expectedExMsg, argEx.Message);
+            Assert.Equal(expectedExMsg, argEx2.Message);
+        }
 
     }
 }

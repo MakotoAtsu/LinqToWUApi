@@ -16,7 +16,7 @@ namespace ConsoleApp1
 
             try
             {
-                //var result = search.Where(x => !x.IsInstalled && x.Type == UpdateType.utSoftware);
+                var result = search.Where(x => x.IsInstalled || x.IsHidden || x.Type == UpdateType.utSoftware);
                 var temp = search.Search("Type = 'Software'");
             }
             catch (Exception ex)

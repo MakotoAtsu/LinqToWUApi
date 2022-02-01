@@ -36,7 +36,7 @@ namespace LinqToWuapi
 
         public static ISearchResult Where(this IUpdateSearcher searcher, Expression<Predicate<IUpdate5>> expression)
         {
-            var searchString = ToSearchString(expression.Body);
+            var searchString = ToSearchString(expression.Body, true);
             var result = searcher.Search(searchString);
             return result;
         }
@@ -117,13 +117,16 @@ namespace LinqToWuapi
             }
             else
             {
-                //if (!isRoot &&
-                //    (binExp.NodeType == ExpressionType.Or || binExp.NodeType == ExpressionType.OrElse))
-                //    throw new ArgumentException($"OR can be used only at the top level of the search criteria");
+                var isOr = binExp.NodeType is ExpressionType.Or ||
+                               binExp.NodeType is ExpressionType.OrElse;
 
-                var temp = $"({ToSearchString(binExp.Left)}) " +
+                if (!isRoot && isOr)
+                    throw new ArgumentException($"OR can be used only at the top level of the search criteria");
+
+
+                var temp = $"({ToSearchString(binExp.Left, isOr)}) " +
                            $"{ExpressionTypeMapping[binExp.NodeType]} " +
-                           $"({ToSearchString(binExp.Right)})";
+                           $"({ToSearchString(binExp.Right, isOr)})";
 
                 return temp;
             }
