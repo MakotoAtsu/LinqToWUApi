@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<PackageId>LinqToWUApi</PackageId>
-		<Version>0.1.0</Version>
+		<Version>0.2.0</Version>
 		<AssemblyName>LinqToWUApi</AssemblyName>
 		<Description>Support to use C# Linq Where Method to search Windows Update Object</Description>
 		<Authors>MakotoAtsu</Authors>
@@ -29,14 +29,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="Readme.md">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
+		<None Update="Readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Enums\" />
+		<Folder Include="Enums\" />
 	</ItemGroup>
 
 </Project>
