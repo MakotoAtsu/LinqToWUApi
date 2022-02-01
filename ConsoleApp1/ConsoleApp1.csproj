@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <Reference Include="Interop.WUApiLib">
-      <HintPath>..\LinqToWuapi\obj\Debug\net5.0\Interop.WUApiLib.dll</HintPath>
+      <HintPath>..\LinqToWuapi\obj\Debug\netstandard2.0\Interop.WUApiLib.dll</HintPath>
     </Reference>
   </ItemGroup>
 

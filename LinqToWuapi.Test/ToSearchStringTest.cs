@@ -62,6 +62,38 @@ namespace LinqToWuapi.Test
             Assert.Equal("((IsInstalled = 1) OR (RevisionNumber = 10)) OR (UpdateID = '12345')", searchString2);
         }
 
+        [Fact]
+        public void Support_BinaryExpression_With_Enum_Constant()
+        {
+
+            Expression<Predicate<IUpdate5>> searchExp = (x) => x.Type == UpdateType.utSoftware;
+            Expression<Predicate<IUpdate5>> searchExp2 = (x) => x.Type == UpdateType.utDriver;
+
+            Expression<Predicate<IUpdate5>> searchExp3 = (x) => x.DeploymentAction == DeploymentAction.daNone;
+            Expression<Predicate<IUpdate5>> searchExp4 = (x) => x.DeploymentAction == DeploymentAction.daDetection;
+            Expression<Predicate<IUpdate5>> searchExp5 = (x) => x.DeploymentAction == DeploymentAction.daUninstallation;
+            Expression<Predicate<IUpdate5>> searchExp6 = (x) => x.DeploymentAction == DeploymentAction.daOptionalInstallation;
+            Expression<Predicate<IUpdate5>> searchExp7 = (x) => x.DeploymentAction == DeploymentAction.daInstallation;
+
+            var searchString = WuApiExt.ToSearchString(searchExp.Body);
+            var searchString2 = WuApiExt.ToSearchString(searchExp2.Body);
+            var searchString3 = WuApiExt.ToSearchString(searchExp3.Body);
+            var searchString4 = WuApiExt.ToSearchString(searchExp4.Body);
+            var searchString5 = WuApiExt.ToSearchString(searchExp5.Body);
+            var searchString6 = WuApiExt.ToSearchString(searchExp6.Body);
+            var searchString7 = WuApiExt.ToSearchString(searchExp7.Body);
+
+
+            Assert.Equal("Type = 'Software'", searchString);
+            Assert.Equal("Type = 'Driver'", searchString2);
+
+            Assert.Equal("DeploymentAction = 'None'", searchString3);
+            Assert.Equal("DeploymentAction = 'Detection'", searchString4);
+            Assert.Equal("DeploymentAction = 'Uninstallation'", searchString5);
+            Assert.Equal("DeploymentAction = 'OptionalInstallation'", searchString6);
+            Assert.Equal("DeploymentAction = 'Installation'", searchString7);
+
+        }
 
         [Fact]
         public void Support_UnaryExpression()
@@ -83,6 +115,8 @@ namespace LinqToWuapi.Test
             Assert.Equal("RebootRequired = 1", searchString4);
 
         }
+
+
 
     }
 }

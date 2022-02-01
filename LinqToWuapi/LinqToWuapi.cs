@@ -112,7 +112,7 @@ namespace LinqToWuapi
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    return HandleEnumBinaryExpression(binExp);
                 }
             }
             else
@@ -129,6 +129,31 @@ namespace LinqToWuapi
             }
         }
 
+        private static string HandleEnumBinaryExpression(BinaryExpression binExp)
+        {
+            if (binExp.Left is UnaryExpression unaryExp)
+            {
+                if (unaryExp.NodeType is ExpressionType.Convert &&
+                    unaryExp.Operand is MemberExpression memberExp)
+                {
+                    var memberName = memberExp.Member.Name;
+                    CheckMemberCanBeSearch(memberName);
+                    CheckMemberAllowType(memberName, binExp.NodeType);
+
+                    var type = memberExp.Type;
+                    var value = Enum.Parse(type, $"{(binExp.Right as ConstantExpression).Value}");
+                    return $"{memberName} = '{value.ToString().Substring(2)}'";
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         private static string ExtractMemberExpression(MemberExpression memberExp)
         {
