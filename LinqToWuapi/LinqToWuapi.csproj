@@ -2,6 +2,15 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
+		<PackageId>LinqToWUApi</PackageId>
+		<Version>0.1.0</Version>
+		<AssemblyName>LinqToWUApi</AssemblyName>
+		<Description>Support to use C# Linq Where Method to search Windows Update Object</Description>
+		<Authors>MakotoAtsu</Authors>
+		<PackageProjectUrl>https://github.com/MakotoAtsu/LinqToWuapi</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/MakotoAtsu/LinqToWuapi</RepositoryUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageTags>WUApi;WUApiLib;WUApiLib</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

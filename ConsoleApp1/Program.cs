@@ -16,8 +16,18 @@ namespace ConsoleApp1
 
             try
             {
-                var result = search.Where(x => x.IsInstalled || x.IsHidden || x.Type == UpdateType.utSoftware);
-                var temp = search.Search("Type = 'Software'");
+                var result = search.Where(x => x.IsInstalled);
+
+                foreach (IUpdate item in result.Updates)
+                {
+                    Console.WriteLine($"{item.Categories} :");
+                    foreach (ICategory cat in item.Categories)
+                    {
+                        Console.WriteLine(cat.CategoryID);
+                    }
+                }
+
+                var temp = search.Search("CategoryIDs contains 'e0789628-ce08-4437-be74-2495b842f43b'");
             }
             catch (Exception ex)
             {

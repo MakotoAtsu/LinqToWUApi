@@ -55,8 +55,8 @@ namespace LinqToWuapi.Test
                                                                x.Identity.RevisionNumber == 10 ||
                                                                x.Identity.UpdateID == "12345";
 
-            var searchString = WuApiExt.ToSearchString(searchExp.Body);
-            var searchString2 = WuApiExt.ToSearchString(searchExp2.Body);
+            var searchString = WuApiExt.ToSearchString(searchExp.Body, true);
+            var searchString2 = WuApiExt.ToSearchString(searchExp2.Body, true);
 
             Assert.Equal("(IsInstalled = 0) AND (IsHidden = 1)", searchString);
             Assert.Equal("((IsInstalled = 1) OR (RevisionNumber = 10)) OR (UpdateID = '12345')", searchString2);
@@ -152,6 +152,30 @@ namespace LinqToWuapi.Test
             Assert.Equal(expectedExMsg, argEx.Message);
             Assert.Equal(expectedExMsg, argEx2.Message);
         }
+
+
+        [Fact]
+        public void NotSupport_Invalid_Member()
+        {
+            Expression<Predicate<IUpdate5>> searchExp = (x) => x.AutoDownload == AutoDownloadMode.adAlwaysAutoDownload;
+            Expression<Predicate<IUpdate5>> searchExp2 = (x) => x.CanRequireSource;
+            Expression<Predicate<IUpdate5>> searchExp3 = (x) => x.Description == "12345";
+
+            Assert.Throws<ArgumentException>(() => WuApiExt.ToSearchString(searchExp.Body, true));
+            Assert.Throws<ArgumentException>(() => WuApiExt.ToSearchString(searchExp2.Body, true));
+            Assert.Throws<ArgumentException>(() => WuApiExt.ToSearchString(searchExp3.Body, true));
+        }
+
+        [Fact]
+        public void NotSupport_Invalid_Operator()
+        {
+            Expression<Predicate<IUpdate5>> searchExp = (x) => x.BrowseOnly != true;
+            Expression<Predicate<IUpdate5>> searchExp2 = (x) => x.IsHidden != false;
+
+            Assert.Throws<ArgumentException>(() => WuApiExt.ToSearchString(searchExp.Body, true));
+            Assert.Throws<ArgumentException>(() => WuApiExt.ToSearchString(searchExp2.Body, true));
+        }
+
 
     }
 }

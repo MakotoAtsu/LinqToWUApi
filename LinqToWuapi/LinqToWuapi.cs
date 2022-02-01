@@ -17,6 +17,11 @@ namespace LinqToWuapi
             { ExpressionType.NotEqual , "!=" },
         };
 
+
+        /// <summary>
+        /// Support search member name
+        /// ref: https://docs.microsoft.com/en-us/windows/win32/api/wuapi/nf-wuapi-iupdatesearcher-search
+        /// </summary>
         private static readonly Dictionary<string, HashSet<ExpressionType>> MemberAllowType = new Dictionary<string, HashSet<ExpressionType>>(StringComparer.OrdinalIgnoreCase)
         {
             {"Type",new HashSet<ExpressionType>(){ ExpressionType.Equal,ExpressionType.NotEqual} },
@@ -44,7 +49,6 @@ namespace LinqToWuapi
         public static string ToSearchString(Expression expression,
                                             bool isRoot = false)
         {
-
             switch (expression)
             {
                 case BinaryExpression binExp:
@@ -56,10 +60,8 @@ namespace LinqToWuapi
                 case UnaryExpression unaryExp:
                     return $"{ExtractUnaryExpression(unaryExp)}";
                 default:
-                    throw new NotImplementedException("Only support BinaryExpression");
+                    throw new NotImplementedException("Not Support Expression");
             }
-
-            throw new NotImplementedException();
         }
 
         private static object ExtractUnaryExpression(UnaryExpression unaryExp)
@@ -171,14 +173,14 @@ namespace LinqToWuapi
         private static void CheckMemberCanBeSearch(string memberName)
         {
             if (!MemberAllowType.ContainsKey(memberName))
-                throw new ArgumentException($"Not support serach attribube {memberName}");
+                throw new ArgumentException($"Not support to serach attribube : '{memberName}'");
 
         }
 
         private static void CheckMemberAllowType(string memberName, ExpressionType type)
         {
             if (!MemberAllowType[memberName].Contains(type))
-                throw new NotSupportedException($"The attribute:{memberName} " +
+                throw new ArgumentException($"The attribute: '{memberName}' " +
                                                 $"only support expression:{string.Join(",", MemberAllowType[memberName])}");
 
         }
