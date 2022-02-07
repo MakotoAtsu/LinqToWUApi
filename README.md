@@ -4,9 +4,11 @@ Support to use .Net Linq expression to Search Windows Update object
 
 <br/>
 
-How to use it:
+# How to use it
 
-1. Import Windows Update Agent API (WUApiLib.dll).
+1. Use NuGet manager to import the library to your project. [LinqToWUApi](https://www.nuget.org/packages/LinqToWUApi)
+
+2. Import Windows Update Agent API (WUApiLib.dll).
    Generally, it,s in the c:\windows\system32 folder
 ```
 using WUApiLib;
@@ -14,7 +16,7 @@ using WUApiLib;
 
 <br>
 
-2. Use Where Method to Search IUpdate object
+3. Use Where Method to Search IUpdate object
 ```
 // Create IUpdateSearcher 
 var search = new UpdateSession().CreateUpdateSearcher();
