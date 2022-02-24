@@ -12,6 +12,7 @@ Support to use .Net Linq expression to Search Windows Update object
    Generally, it,s in the c:\windows\system32 folder
 ```
 using WUApiLib;
+using LinqToWuapi;
 ```
 
 <br>
